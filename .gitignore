@@ -1,0 +1,7 @@
+build*/
+.vs/
+*.zip
+*.md
+!README.md
+!docs/HOW_IT_WORKS.md
+extracted/
