@@ -1,0 +1,113 @@
+#include "efz_config_resource.h"
+
+LANGUAGE 9, 1
+
+IDI_CONFIG ICON "../assets/config_icon_new.ico"
+IDR_CATALOGUE RCDATA "../mods_catalogue.csv"
+
+999 DIALOGEX 0, 0, 301, 228
+STYLE 0x90C808C0
+CAPTION "EfzConfig+"
+FONT 9, "MS PGothic", 0, 0, 128
+BEGIN
+    CONTROL "OK", 1000, "Button", 0x50012F00, 194, 208, 48, 16
+    CONTROL "Cancel", 1001, "Button", 0x50012F00, 245, 208, 52, 16
+    CONTROL "CPU Difficulty", 1300, "Static", 0x50020000, 13, 151, 43, 8
+    CONTROL "Easy (1)", 1127, "Button", 0x50000009, 58, 151, 43, 8
+    CONTROL "Normal (2)", 1128, "Button", 0x50000009, 118, 151, 53, 8
+    CONTROL "Hard (3)", 1129, "Button", 0x50000009, 178, 151, 45, 8
+    CONTROL "Very Hard (4)", 1130, "Button", 0x50000009, 233, 151, 60, 8
+    CONTROL "Draw Rate", 1301, "Static", 0x50020000, 13, 106, 36, 8
+    CONTROL "30 FPS", 1112, "Button", 0x50000009, 58, 106, 37, 8
+    CONTROL "60 FPS", 1113, "Button", 0x50000009, 118, 106, 37, 8
+    CONTROL "Effects", 1302, "Static", 0x50020000, 13, 136, 28, 8
+    CONTROL "Simple", 1120, "Button", 0x50000009, 58, 136, 30, 10
+    CONTROL "Normal", 1121, "Button", 0x50000009, 118, 136, 30, 10
+    CONTROL "Damage", 1303, "Static", 0x50020000, 13, 121, 26, 8
+    CONTROL "50 %", 1124, "Button", 0x50000009, 58, 121, 29, 10
+    CONTROL "100 %", 1125, "Button", 0x50000009, 118, 121, 32, 10
+    CONTROL "200 %", 1126, "Button", 0x50000009, 178, 121, 32, 10
+    CONTROL "Start with 640x480 resolution", 1080, "Button", 0x50030003, 80, 187, 112, 12
+    CONTROL "", 1122, "ComboBox", 0x50210103, 8, 186, 65, 90
+    CONTROL "Start Game", 1114, "Button", 0x50010000, 126, 208, 64, 16
+    CONTROL "Options", 1306, "Button", 0x50000007, 7, 94, 288, 87
+    CONTROL "1P Controls", 1004, "Button", 0x50000007, 7, 20, 142, 70
+    CONTROL "Up", 1020, "Button", 0x50000009, 11, 30, 30, 10
+    CONTROL "Attack1", 1024, "Button", 0x50000009, 11, 55, 35, 10
+    CONTROL "Attack2", 1025, "Button", 0x50000009, 46, 55, 35, 10
+    CONTROL "Attack3", 1026, "Button", 0x50000009, 81, 55, 35, 10
+    CONTROL "Right", 1023, "Button", 0x50000009, 115, 30, 32, 10
+    CONTROL "Special", 1027, "Button", 0x50000009, 115, 55, 32, 10
+    CONTROL "Left", 1022, "Button", 0x50000009, 81, 30, 35, 10
+    CONTROL "Down", 1021, "Button", 0x50000009, 46, 30, 35, 10
+    CONTROL "2P Controls", 1307, "Button", 0x50000007, 151, 20, 143, 70
+    CONTROL "Up", 1028, "Button", 0x50000009, 156, 30, 30, 10
+    CONTROL "Attack1", 1032, "Button", 0x50000009, 156, 56, 35, 10
+    CONTROL "Attack2", 1033, "Button", 0x50000009, 192, 56, 35, 10
+    CONTROL "Attack3", 1034, "Button", 0x50000009, 226, 56, 35, 10
+    CONTROL "Right", 1031, "Button", 0x50000009, 260, 30, 31, 10
+    CONTROL "Special", 1035, "Button", 0x50000009, 260, 56, 31, 10
+    CONTROL "Left", 1030, "Button", 0x50000009, 226, 30, 35, 10
+    CONTROL "Down", 1029, "Button", 0x50000009, 192, 30, 35, 10
+    CONTROL "", 1005, "Static", 0x5002100C, 11, 40, 30, 10
+    CONTROL "", 1006, "Static", 0x5002100C, 46, 40, 30, 10
+    CONTROL "", 1007, "Static", 0x5002100C, 81, 40, 30, 10
+    CONTROL "", 1008, "Static", 0x5002100C, 115, 40, 30, 10
+    CONTROL "", 1009, "Static", 0x5002100C, 11, 65, 30, 10
+    CONTROL "", 1010, "Static", 0x5002100C, 46, 65, 30, 10
+    CONTROL "", 1011, "Static", 0x5002100C, 81, 65, 30, 10
+    CONTROL "", 1012, "Static", 0x5002100C, 115, 65, 30, 10
+    CONTROL "", 1013, "Static", 0x5002100C, 156, 40, 30, 10
+    CONTROL "", 1014, "Static", 0x5002100C, 192, 40, 30, 10
+    CONTROL "", 1015, "Static", 0x5002100C, 226, 40, 30, 10
+    CONTROL "", 1016, "Static", 0x5002100C, 260, 40, 30, 10
+    CONTROL "", 1017, "Static", 0x5002100C, 156, 66, 30, 10
+    CONTROL "", 1018, "Static", 0x5002100C, 192, 66, 30, 10
+    CONTROL "", 1019, "Static", 0x5002100C, 226, 66, 30, 10
+    CONTROL "", 1036, "Static", 0x5002100C, 260, 66, 30, 10
+    CONTROL "This legend does exists here eternally...", 1305, "Static", 0x50000002, 161, 106, 131, 8
+    CONTROL "Round Count", 1304, "Static", 0x50020000, 13, 166, 43, 8
+    CONTROL "1", 1131, "Button", 0x50000009, 58, 166, 19, 10
+    CONTROL "2", 1132, "Button", 0x50000009, 118, 166, 19, 10
+    CONTROL "3", 1133, "Button", 0x50000009, 178, 166, 19, 10
+    CONTROL "", 1252, "Static", 0x50020080, 11, 78, 134, 8, 0x0
+    CONTROL "", 1253, "Static", 0x50020080, 155, 78, 135, 8, 0x0
+    CONTROL "", 1265, "ListBox", 0x40010101, 7, 22, 58, 112, 0x200
+    CONTROL "", 1266, "SysListView32", 0x4001800D, 68, 22, 226, 112, 0x200
+    CONTROL "", 1267, "Edit", 0x40000844, 12, 146, 277, 38, 0x0
+    CONTROL "", 1269, "Button", 0x40000007, 7, 136, 287, 52, 0x0
+    CONTROL "", 1264, "Button", 0x40010000, 231, 189, 63, 13, 0x0
+    CONTROL "", 1268, "Static", 0x40020000, 7, 191, 220, 8, 0x0
+    CONTROL "", 1270, "SysListView32", 0x4001800D, 7, 22, 220, 112, 0x200
+    CONTROL "", 1272, "Button", 0x40010000, 231, 22, 63, 14, 0x0
+    CONTROL "", 1273, "Button", 0x40010000, 231, 38, 63, 14, 0x0
+    CONTROL "", 1274, "Button", 0x40010000, 231, 60, 63, 14, 0x0
+    CONTROL "", 1275, "Button", 0x40010000, 231, 76, 63, 14, 0x0
+    CONTROL "", 1276, "Button", 0x40010000, 231, 98, 63, 14, 0x0
+    CONTROL "", 1279, "Button", 0x40010000, 231, 120, 63, 14, 0x0
+    CONTROL "", 1278, "Edit", 0x40000844, 12, 146, 277, 38, 0x0
+    CONTROL "", 1277, "Button", 0x40000007, 7, 136, 287, 52, 0x0
+    CONTROL "", 1271, "Static", 0x40020000, 7, 191, 287, 8, 0x0
+    CONTROL "Aa", 1251, "Button", 0x50010000, 4, 208, 52, 16, 0x0
+    CONTROL "", 1254, "Static", 0x50000300, 60, 208, 62, 16, 0x0
+    CONTROL "", 1250, "SysTabControl32", 0x54010000, 2, 2, 297, 202, 0x0
+END
+
+998 DIALOGEX 0, 0, 200, 48
+STYLE 0x90C808C0
+CAPTION "Bind Revival hotkey"
+FONT 9, "MS PGothic", 0, 0, 128
+BEGIN
+    CONTROL "", 1280, "Static", 0x50020000, 6, 6, 188, 36
+END
+
+997 DIALOGEX 0, 0, 200, 58
+STYLE 0x90C808C0
+CAPTION "Change setting"
+FONT 9, "MS PGothic", 0, 0, 128
+BEGIN
+    CONTROL "", 1284, "Static", 0x50020080, 6, 6, 188, 8
+    CONTROL "", 1285, "Edit", 0x50810080, 6, 17, 188, 13
+    CONTROL "OK", 1, "Button", 0x50010001, 90, 38, 50, 14
+    CONTROL "Cancel", 2, "Button", 0x50010000, 144, 38, 50, 14
+END
