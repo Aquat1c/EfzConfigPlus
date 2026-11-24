@@ -17,6 +17,10 @@ Start Game. It reads and writes the same `KEY.ini` as the original.
 - Press a D-Pad direction on a direction slot to use the D-Pad for that
   player. All four directions switch at once, because Revival only reads the
   D-Pad when no direction is bound to the stick.
+- Triggers and the right stick can be bound too. The game cannot read them
+  by itself, so the first time you press one the tool offers to install and
+  enable the [ControllsFix](https://github.com/Aquat1c/ControllsFix) mod,
+  which turns them into buttons the game understands.
 - The detected controllers are shown under the 1P and 2P boxes; each box
   names the controller its player is bound to. PAD1 and
   PAD2 are the same two controllers the game will use.
@@ -156,7 +160,8 @@ page of the latest release when clicked.
 
 ## Building
 
-Requires Visual Studio with the `v141_xp` toolset and CMake.
+Requires Visual Studio with the `v141_xp` toolset and CMake. Clone with
+`--recurse-submodules`, or run `git submodule update --init` afterwards.
 
 ```
 cmake -B build-xp -A Win32 -T v141_xp
@@ -173,6 +178,7 @@ The result is `build-xp\Release\EfzConfig+.exe`.
 | `tools/` | the generators (`gen_efz_config_ui.py`, `gen_efz_config_dik.py`) and the tests. The UI generator needs data extracted from the original `config.exe` and `config_EN.exe`, which is not included here |
 | `docs/` | `HOW_IT_WORKS.md`, a detailed description of everything the tool does |
 | `assets/` | the icon |
+| `ControllsFix/` | the ControllsFix mod (submodule); the tool shares its controller rules |
 | `third_party/miniz/` | zip reader (public domain) |
 | `mods_catalogue.csv` | the mod list |
 

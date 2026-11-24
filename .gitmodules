@@ -1,0 +1,3 @@
+[submodule "ControllsFix"]
+	path = ControllsFix
+	url = https://github.com/Aquat1c/ControllsFix.git

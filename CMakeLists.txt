@@ -15,6 +15,7 @@ add_executable(efz_config WIN32
     src/efz_config_ini.c
     src/efz_config_mods.c
     src/efz_config_resources.rc
+    ControllsFix/padmap.c
     third_party/miniz/miniz.c
 )
 
@@ -40,3 +41,5 @@ target_compile_definitions(test_mods PRIVATE MINIZ_NO_STDIO MINIZ_NO_TIME
 target_link_libraries(test_mods PRIVATE shell32 wininet advapi32)
 add_library(test_schema_dll SHARED tools/test_schema_dll.c)
 add_test(NAME mods COMMAND test_mods $<TARGET_FILE:test_schema_dll>)
+
+add_subdirectory(ControllsFix)

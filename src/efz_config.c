@@ -21,6 +21,7 @@
 #include "efz_config_ini.h"
 #include "efz_config_mods.h"
 #include "../include/efz_config_api.h"
+#include "../ControllsFix/padmap.h"
 
 #ifndef ARRAYSIZE
 #  define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -104,6 +105,9 @@ static LPDIRECTINPUTDEVICEA g_keyboard;
 static LPDIRECTINPUTDEVICE2A g_joysticks[MAX_JOYSTICKS];
 static unsigned int g_joystickCount;
 static char g_joystickNames[MAX_JOYSTICKS][MAX_PATH];
+static PadMapConfig g_padMap;
+static PadMapDevice g_padDevices[MAX_JOYSTICKS];
+static const wchar_t kPadMod[] = L"ControllsFix";
 
 static KeyConfigFile g_keyConfig;
 static uint8_t g_currentPreset;
@@ -118,6 +122,7 @@ typedef struct CaptureEvent {
     int source;
     int code;
     bool pov;
+    bool extra;
 } CaptureEvent;
 static bool g_captureArmed;
 static int g_dpadPad[2];
@@ -290,6 +295,14 @@ static BOOL CALLBACK EnumerateJoystickCallback(LPCDIDEVICEINSTANCEA instance, LP
     return g_joystickCount < MAX_JOYSTICKS ? DIENUM_CONTINUE : DIENUM_STOP;
 }
 
+static void ReloadPadMap(void)
+{
+    wchar_t path[MAX_PATH + 64];
+
+    FORMAT(path, L"%s\\mods\\%s\\%s.ini", g_exeDir, kPadMod, kPadMod);
+    PadMap_Load(&g_padMap, path);
+}
+
 static void ShutdownDirectInput(void)
 {
     unsigned int i;
@@ -348,7 +361,9 @@ static BOOL InitializeDirectInput(HWND cooperativeWindow)
         IDirectInputDevice2_EnumObjects(g_joysticks[i], SetAxisRangeCallback,
                                         g_joysticks[i], DIDFT_AXIS);
         IDirectInputDevice2_Acquire(g_joysticks[i]);
+        PadMap_Describe(g_joysticks[i], &g_padDevices[i]);
     }
+    ReloadPadMap();
     return TRUE;
 }
 
@@ -393,6 +408,7 @@ static bool PollJoystickEvent(unsigned int index, int buttonLimit, CaptureEvent 
 {
     static int s_axisHold[MAX_JOYSTICKS];
     DIJOYSTATE state;
+    unsigned extra;
     int i, direction;
 
     if (index >= MAX_JOYSTICKS || !g_joysticks[index])
@@ -403,8 +419,10 @@ static bool PollJoystickEvent(unsigned int index, int buttonLimit, CaptureEvent 
         return false;
     }
 
+    extra = PadMap_Apply(&g_padMap, &g_padDevices[index], &state);
     out->source = (int)index + 1;
     out->pov = false;
+    out->extra = false;
 
     direction = AxisDirection(&state, s_axisHold[index] ? AXIS_RELEASE_THRESHOLD
                                                         : AXIS_CAPTURE_THRESHOLD);
@@ -419,6 +437,7 @@ static bool PollJoystickEvent(unsigned int index, int buttonLimit, CaptureEvent 
     for (i = 0; i < buttonLimit && i < 32; ++i) {
         if (state.rgbButtons[i] & 0x80) {
             out->code = i + 1;
+            out->extra = i < 16 && (extra >> i & 1);
             return true;
         }
     }
@@ -456,7 +475,7 @@ static void DisarmCapture(void)
 
 static bool PollCaptureEvent(int buttonLimit, bool filterReservedKeys, CaptureEvent *out)
 {
-    CaptureEvent ev = { 0, 0, false };
+    CaptureEvent ev = { 0, 0, false, false };
     bool have = PollJoystickEvent(0, buttonLimit, &ev) || PollJoystickEvent(1, buttonLimit, &ev);
 
     if (!have) {
@@ -637,8 +656,12 @@ static void SelectBindingSlot(HWND dialog, int slot)
         CheckDlgButton(dialog, IDC_BINDING_FIRST + i, i == slot ? BST_CHECKED : BST_UNCHECKED);
 }
 
+static bool PadModEnabled(void);
+static bool PadModReady(HWND dialog);
+
 static void PollAndAssignBinding(HWND dialog)
 {
+    static bool asking;
     CaptureEvent ev;
     KeyPreset *preset = CurrentPreset();
     int slot, i;
@@ -648,11 +671,20 @@ static void PollAndAssignBinding(HWND dialog)
         DisarmCapture();
         return;
     }
-    if (!PollCaptureEvent(16, true, &ev))
+    if (asking || !PollCaptureEvent(16, true, &ev))
         return;
 
     if (ev.pov && !IsDirectionSlot(slot))
         return;
+    if (ev.extra) {
+        bool ready;
+        asking = true;
+        ready = PadModReady(dialog);
+        asking = false;
+        DisarmCapture();
+        if (!ready)
+            return;
+    }
 
     if (ev.source != 0) {
         int base = slot - slot % BINDINGS_PER_PLAYER;
@@ -1016,7 +1048,7 @@ static INT_PTR CALLBACK CapturePopupProc(HWND dialog, UINT message, WPARAM wPara
         } else if (GetAsyncKeyState(VK_BACK) & 0x8000) {
             wcscpy(ctx->result, L"None");
             EndDialog(dialog, 1);
-        } else if (PollCaptureEvent(32, false, &ev) && !ev.pov) {
+        } else if (PollCaptureEvent(32, false, &ev) && !ev.pov && (!ev.extra || PadModEnabled())) {
             const StoredBinding *bindings = CurrentPreset()->bindings;
             int pad = bindings[4].source ? bindings[4].source
                                          : bindings[BINDINGS_PER_PLAYER + 4].source;
@@ -1615,6 +1647,55 @@ static void InstallReleases(HWND dialog, const ModInfo *only, bool updates, bool
     StartModTask(dialog, task);
 }
 
+static int PadModRow(void)
+{
+    int i;
+
+    for (i = 0; i < g_modRowCount; ++i)
+        if (_wcsicmp(g_modRows[i].name, kPadMod) == 0 && g_modRows[i].installed && !g_modRows[i].missing)
+            return i;
+    return -1;
+}
+
+static bool PadModEnabled(void)
+{
+    int row = PadModRow();
+    return row >= 0 && g_modRows[row].enabled;
+}
+
+static bool PadModReady(HWND dialog)
+{
+    wchar_t message[512];
+    ModInfo *info;
+    int row;
+
+    if (PadModEnabled())
+        return true;
+    if (!g_modsAvailable) {
+        MsgBox(dialog, Ls(LS_PADMOD_NEEDS_MANAGER), MB_OK | MB_ICONINFORMATION);
+        return false;
+    }
+    if (MsgBox(dialog, Ls(LS_PADMOD_PROMPT), MB_YESNO | MB_ICONQUESTION) != IDYES)
+        return false;
+
+    row = PadModRow();
+    if (row >= 0) {
+        g_modRows[row].enabled = true;
+        g_modRows[row].changed = true;
+        g_modsDirty = true;
+        FillModsList(dialog, SelectedModRow(dialog));
+        return true;
+    }
+    info = CatalogueEntry(kPadMod, false);
+    if (!info || !info->repo[0] || g_modBusy) {
+        FORMAT(message, Ls(LS_MODS_INSTALL_FAILED), kPadMod);
+        MsgBox(dialog, message, MB_OK | MB_ICONWARNING);
+        return false;
+    }
+    InstallReleases(dialog, info, false, false);
+    return true;
+}
+
 static void OnModTaskDone(HWND dialog, ModTask *task)
 {
     wchar_t message[1024] = L"", names[512] = L"";
@@ -1687,7 +1768,11 @@ static bool SaveModSettings(HWND dialog)
 {
     wchar_t message[256];
 
-    if (g_modSettingsDirty && !Ini_Save(&g_modSettingsIni)) {
+    if (g_modSettingsDirty && Ini_Save(&g_modSettingsIni)) {
+        g_modSettingsDirty = false;
+        ReloadPadMap();
+    }
+    if (g_modSettingsDirty) {
         FORMAT(message, Ls(LS_MODSET_SAVE_FAILED), g_modSettingsName);
         MsgBox(dialog, message, MB_OK | MB_ICONERROR);
         return false;

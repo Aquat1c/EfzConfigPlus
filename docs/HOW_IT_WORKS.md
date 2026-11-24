@@ -101,6 +101,46 @@ Details of the capture:
   Enter, numpad Enter, Tab and both Shift keys.
 - Only the first 16 buttons of a controller can be bound.
 
+### Triggers and the right stick
+
+The game reads sixteen buttons and the left stick of a controller and nothing
+else. The triggers of Xbox-type controllers and the right stick of any
+controller are axes it never looks at. The ControllsFix mod makes them appear
+to the game as buttons: by default the left and right trigger are buttons 11
+and 12 and the right stick's up, down, left and right are buttons 13 to 16.
+
+The tool contains the same rules as the mod, compiled from the same source
+files, and applies them to every controller it reads. Pulling a trigger while
+a slot is selected is therefore captured as the button the game will see with
+the mod running. The numbers come from `mods\ControllsFix\ControllsFix.ini`
+when that file exists and are read again whenever a mod's settings are saved,
+so a change made on the mod's Settings page is followed at once.
+
+Such a button only exists in the game while the mod is loaded, so the tool
+checks before it stores one:
+
+- The mod is installed and enabled: the button is stored like any other.
+- There is no EfzModManager in the game folder: a message says that the input
+  needs the mod and the mod needs the mod loader. Nothing is stored.
+- Otherwise the tool asks whether to set the mod up. On No nothing is stored.
+  On Yes, a mod that is already in the `mods` folder is ticked in the mod list
+  and the button is stored; the tick is written with OK like any other change
+  on the Mods page. A mod that is not there is downloaded and installed from
+  its entry in the mod list, the same way as with the Install button, and the
+  button is stored. If the list has no entry for it or another download is
+  running, the usual "could not install" message appears and nothing is
+  stored.
+
+When nothing was stored the slot stays selected, and the tool waits for
+everything to be released before it listens again.
+
+A button that the controller really has is never questioned, even when the mod
+would produce the same number. A right stick direction can go into a direction
+slot as well as a button slot, since to the game it is a button.
+
+In the hotkey popup of the Revival page these inputs are only accepted while
+the mod is installed and enabled; otherwise they are ignored there.
+
 ### The D-Pad
 
 EfzRevival reads a controller's D-Pad itself. It does so for a player only
@@ -429,10 +469,14 @@ It is enough to run the tool once in the Wine prefix the game is played in.
   that is what the original uses. The standard ids only arrive from Enter and
   Esc: Enter edits the selected row of a list and otherwise acts as OK.
 - `third_party/miniz` unpacks zip files from memory.
+- `ControllsFix` is the mod's own repository, included as a git submodule. The
+  tool compiles `padmap.c` from it, and the build also produces the mod's DLL
+  and runs its test. The DLL is not part of the tool's releases; the tool
+  downloads the mod from the mod's own releases like any other mod.
 - The generators read data taken from the original configuration programs
   (their dialogs, texts and key names) from a folder named `extracted`. That
   folder is not part of the repository; the generated files are, so the tool
   builds without it.
 - The tests are `test_ini` (the ini line model) and `test_mods` (the mod list
-  parser, import rules and reading a settings table from a DLL). They run with
-  `ctest` and need no network.
+  parser, import rules and reading a settings table from a DLL), plus the mod's
+  `test_padmap`. They run with `ctest` and need no network.
