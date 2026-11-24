@@ -145,6 +145,7 @@ typedef struct ModRow {
     wchar_t name[MOD_NAME_CAP];
     const ModInfo *info;
     bool installed;
+    bool missing;
     bool listed;
     bool enabled;
     bool changed;
@@ -1267,7 +1268,7 @@ static bool LoadModSettings(const wchar_t *folder, ModSchema *schema, IniFile *i
 static bool ModNeedsUpdate(const ModRow *row)
 {
     const wchar_t *latest = LatestTag(row->info);
-    return row->installed && latest[0] && wcscmp(latest, row->installedTag) != 0;
+    return row->installed && !row->missing && latest[0] && wcscmp(latest, row->installedTag) != 0;
 }
 
 static ModRow *AddModRow(const wchar_t *name)
@@ -1316,6 +1317,8 @@ static void BuildModRows(void)
                 && (row = AddModRow(key)) != NULL && !row->listed) {
             row->installed = row->listed = true;
             row->enabled = _wtoi(value) != 0;
+            FORMAT(pattern, L"%s\\mods\\%s", g_exeDir, key);
+            row->missing = GetFileAttributesW(pattern) == INVALID_FILE_ATTRIBUTES;
         }
     }
 
@@ -1390,7 +1393,7 @@ static void FillModsList(HWND dialog, int select)
         const ModRow *row = &g_modRows[i];
         const wchar_t *latest = LatestTag(row->info);
 
-        if (!row->installed)
+        if (!row->installed || row->missing)
             FORMAT(status, L"%s", Ls(LS_ST_NOT_INSTALLED));
         else if (ModNeedsUpdate(row))
             FORMAT(status, Ls(LS_ST_UPDATE), latest);
@@ -1589,7 +1592,7 @@ static void CheckForUpdates(HWND dialog, bool automatic)
     task->kind = TASK_CHECK;
     task->automatic = automatic;
     for (i = 0; i < g_modRowCount && task->count < 64; ++i)
-        if (g_modRows[i].installed && g_modRows[i].info && g_modRows[i].info->repo[0])
+        if (g_modRows[i].installed && !g_modRows[i].missing && g_modRows[i].info && g_modRows[i].info->repo[0])
             task->mods[task->count++] = *g_modRows[i].info;
     StartModTask(dialog, task);
 }
@@ -1658,6 +1661,9 @@ static void OnModTaskDone(HWND dialog, ModTask *task)
             CheckForUpdates(dialog, false);
         }
     } else {
+        for (i = 0; i < g_modRowCount; ++i)
+            Mods_InstalledRelease(g_exeDir, g_modRows[i].name, g_modRows[i].installedTag, message);
+        message[0] = 0;
         FillModsList(dialog, SelectedModRow(dialog));
         for (i = 0; i < g_modRowCount; ++i) {
             if (ModNeedsUpdate(&g_modRows[i]) && wcslen(names) + MOD_NAME_CAP + 48 < ARRAYSIZE(names)) {

@@ -215,7 +215,9 @@ The list shows, from top to bottom:
 2. The entries of `[Mods]`, in file order.
 3. Mods from the mod list that are not installed.
 
-Installed mods have a checkbox. Move up and Move down change the order.
+Installed mods have a checkbox. An entry of `[Mods]` whose folder does not
+exist under `mods\` keeps its place in the list, but it is shown as not
+installed and is never checked for updates. Move up and Move down change the order.
 
 When the page is saved, the entry lines of `[Mods]` are rewritten in the new
 order. A line that already holds the right mod only gets its value changed,
