@@ -270,7 +270,10 @@ many mods installed would use that up.
 
 When the tool starts it looks up the latest release tag of every installed
 mod that has a repository. A mod needs an update when its recorded tag
-differs from the latest tag.
+differs from the latest tag. The question the tool asks at start, whether to
+install the updates now, only covers mods that are enabled. A mod that is
+disabled or not listed in `EfzModManager.ini` still shows that an update is
+available in the list and can be updated from there.
 
 A mod that was installed by hand has no recorded tag. For such a mod the tool
 compares the SHA-256 of the installed DLL with the SHA-256 the release page

@@ -1597,7 +1597,7 @@ static void CheckForUpdates(HWND dialog, bool automatic)
     StartModTask(dialog, task);
 }
 
-static void InstallReleases(HWND dialog, const ModInfo *only, bool updatesOnly)
+static void InstallReleases(HWND dialog, const ModInfo *only, bool updates, bool enabledOnly)
 {
     ModTask *task = (ModTask *)calloc(1, sizeof(ModTask));
     int i;
@@ -1609,8 +1609,8 @@ static void InstallReleases(HWND dialog, const ModInfo *only, bool updatesOnly)
     task->kind = TASK_INSTALL;
     if (only)
         task->mods[task->count++] = *only;
-    for (i = 0; updatesOnly && i < g_modRowCount && task->count < 64; ++i)
-        if (ModNeedsUpdate(&g_modRows[i]))
+    for (i = 0; updates && i < g_modRowCount && task->count < 64; ++i)
+        if (ModNeedsUpdate(&g_modRows[i]) && (g_modRows[i].enabled || !enabledOnly))
             task->mods[task->count++] = *g_modRows[i].info;
     StartModTask(dialog, task);
 }
@@ -1666,7 +1666,7 @@ static void OnModTaskDone(HWND dialog, ModTask *task)
         message[0] = 0;
         FillModsList(dialog, SelectedModRow(dialog));
         for (i = 0; i < g_modRowCount; ++i) {
-            if (ModNeedsUpdate(&g_modRows[i]) && wcslen(names) + MOD_NAME_CAP + 48 < ARRAYSIZE(names)) {
+            if (ModNeedsUpdate(&g_modRows[i]) && g_modRows[i].enabled && wcslen(names) + MOD_NAME_CAP + 48 < ARRAYSIZE(names)) {
                 wcscat(names, g_modRows[i].info->name);
                 wcscat(names, L"  (");
                 wcscat(names, LatestTag(g_modRows[i].info));
@@ -1677,7 +1677,7 @@ static void OnModTaskDone(HWND dialog, ModTask *task)
         if (prompt && task->automatic) {
             FORMAT(message, Ls(LS_MODS_UPDATES_PROMPT), names);
             if (MsgBox(dialog, message, MB_YESNO | MB_ICONQUESTION) == IDYES)
-                InstallReleases(dialog, NULL, true);
+                InstallReleases(dialog, NULL, true, true);
         }
     }
     free(task);
@@ -1718,7 +1718,7 @@ static void OfferManagerInstall(HWND dialog)
         MsgBox(dialog, Ls(LS_MODS_BUSY), MB_OK | MB_ICONINFORMATION);
     else if (ManagerPackage()
              && MsgBox(dialog, Ls(LS_MODS_MANAGER_PROMPT), MB_YESNO | MB_ICONQUESTION) == IDYES)
-        InstallReleases(dialog, ManagerPackage(), false);
+        InstallReleases(dialog, ManagerPackage(), false, false);
 }
 
 static void ImportMod(HWND dialog, const wchar_t *path)
@@ -1797,7 +1797,7 @@ static void InstallSelectedMod(HWND dialog)
     if (!info)
         return;
     if (info->repo[0]) {
-        InstallReleases(dialog, info, false);
+        InstallReleases(dialog, info, false, false);
     } else if (info->page[0]) {
         ShellExecuteW(dialog, L"open", info->page, NULL, NULL, SW_SHOWNORMAL);
         MsgBox(dialog, Ls(LS_MODS_PAGE_OPENED), MB_OK | MB_ICONINFORMATION);
@@ -2233,7 +2233,7 @@ static INT_PTR CALLBACK ConfigDialogProc(HWND dialog, UINT message, WPARAM wPara
             InstallSelectedMod(dialog);
             return TRUE;
         case IDC_MODS_UPDATE_ALL:
-            InstallReleases(dialog, NULL, true);
+            InstallReleases(dialog, NULL, true, false);
             return TRUE;
         case IDC_MODS_IMPORT:
             ImportModDialog(dialog);
