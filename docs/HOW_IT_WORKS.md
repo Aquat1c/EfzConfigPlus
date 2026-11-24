@@ -288,6 +288,14 @@ and Download columns); an error page or a sign-in page never replaces the copy
 the tool already has. The downloaded copy is used in preference to the
 built-in one.
 
+Ten mods that only come with the main download of the game are not in the
+list, because there is nowhere to get them one by one: EnglishTranslation,
+MayuOldStage, MisakiSelectFixEN, MisakiSelectFixJP, Akiko623Info,
+AlwaysGolden, BossUnknown, GenocideIkumi, OnlyLightningMishio and
+OnlyLongRangeMio. Their type and description are kept inside the tool and are
+used when a folder of that name is installed and the list has no entry for it.
+A mod of that kind that is not installed is not shown at all.
+
 ### Installing and updating
 
 Installing a release means:

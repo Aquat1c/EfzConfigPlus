@@ -18,7 +18,7 @@
 #define IDC_PAD2_NAME           1253
 #define IDC_VERSION_LINK        1254
 
-#define EFZ_CONFIG_VERSION      L"1.2.1"
+#define EFZ_CONFIG_VERSION      L"1.2.2"
 
 #define IDR_CATALOGUE           300
 

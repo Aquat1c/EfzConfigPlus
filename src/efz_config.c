@@ -1255,7 +1255,7 @@ static ModInfo *CatalogueEntry(const wchar_t *name, bool byFolder)
         if (g_modCatalogue[i].type != MOD_MANAGER
                 && _wcsicmp(byFolder ? g_modCatalogue[i].folder : g_modCatalogue[i].name, name) == 0)
             return &g_modCatalogue[i];
-    return NULL;
+    return Mods_Bundled(name);
 }
 
 static const ModInfo *ManagerPackage(void)

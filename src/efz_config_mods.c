@@ -135,6 +135,40 @@ bool Mods_LoadCatalogue(const char *csv, size_t size)
     return true;
 }
 
+static const char kBundled[] =
+    "Name,Type,Description,Created By,Download,Folder\n"
+    "EnglishTranslation,Cosmetic,Translate most game text into English. Now including win quotes!,"
+    "SaltyBucket & fishshapedfish,,\n"
+    "MayuOldStage,Cosmetic,Replace Mayu's stage (Behind the School) with the version from EFZ 1.0.,"
+    "fishshapedfish,,\n"
+    "MisakiSelectFixEN,Cosmetic,Fix Misaki's character select icon. For use with EnglishTranslation.,"
+    "fishshapedfish,,\n"
+    "MisakiSelectFixJP,Cosmetic,Fix Misaki's character select icon. Maintains original Japanese character names.,"
+    "fishshapedfish,,\n"
+    "Akiko623Info,Tool,Brings up a window to show info about Akiko's 623 clean hits. "
+    "Perfect for practicing the timing.,fishshapedfish,,\n"
+    "AlwaysGolden,Gameplay,Doppel and Mishio's Final Memory are always active. Very helpful for practice.,"
+    "fishshapedfish,,\n"
+    "BossUnknown,Gameplay,Replace UNKNOWN with her arcade mode boss variant.,fishshapedfish,,\n"
+    "GenocideIkumi,Gameplay,Ikumi always has her Genocide move set without the superarmor.,fishshapedfish,,\n"
+    "OnlyLightningMishio,Gameplay,Mishio can only obtain her lightning element.,fishshapedfish,,\n"
+    "OnlyLongRangeMio,Gameplay,\"Mio can only use her long range mode, swapping keeps you in long range.\","
+    "fishshapedfish,,\n";
+
+ModInfo *Mods_Bundled(const wchar_t *folder)
+{
+    static ModInfo bundled[16];
+    static int count = -1;
+    int i;
+
+    if (count < 0)
+        count = ParseCatalogue(kBundled, sizeof(kBundled) - 1, bundled, (int)COUNT_OF(bundled));
+    for (i = 0; i < count; ++i)
+        if (_wcsicmp(bundled[i].folder, folder) == 0)
+            return &bundled[i];
+    return NULL;
+}
+
 static char *ReadWholeFile(const wchar_t *path, DWORD *size)
 {
     HANDLE file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);

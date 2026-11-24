@@ -24,6 +24,7 @@ extern ModInfo g_modCatalogue[256];
 extern int g_modCatalogueCount;
 
 bool Mods_LoadCatalogue(const char *csv, size_t size);
+ModInfo *Mods_Bundled(const wchar_t *folder);
 bool Mods_LoadCatalogueFile(const wchar_t *path);
 
 bool Mods_FetchCatalogue(const wchar_t *url, const wchar_t *cachePath);

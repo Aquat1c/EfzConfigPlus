@@ -109,6 +109,9 @@ int main(int argc, char **argv)
                        && wcscmp(g_modCatalogue[1].page, L"https://example.org/file/x") == 0
                        && g_modCatalogue[2].type == MOD_MANAGER
                        && !g_modCatalogue[2].repo[0] && !g_modCatalogue[2].page[0]);
+    check("bundled descriptions", Mods_Bundled(L"bossunknown") && Mods_Bundled(L"BossUnknown")->type == MOD_GAMEPLAY
+                                  && Mods_Bundled(L"OnlyLongRangeMio")->description[0] == L'M'
+                                  && !Mods_Bundled(L"OnlyLongRangeMio")->repo[0] && !Mods_Bundled(L"ModB"));
     check("not a catalogue", !Mods_LoadCatalogue("<html>Sign in</html>", 20) && g_modCatalogueCount == 3);
 
     if (argc > 1)
